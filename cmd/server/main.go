@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/lil-newty/go-rest-api-01/internal/comment"
 	"github.com/lil-newty/go-rest-api-01/internal/database"
 	transportHTTP "github.com/lil-newty/go-rest-api-01/internal/transport/http"
 )
@@ -17,12 +18,18 @@ func (app *App) Run() error {
 	fmt.Println("Setting Up Our App")
 
 	var err error
-	_, err = database.NewDatabase()
+	db, err := database.NewDatabase()
 	if err != nil {
 		return err
 	}
 
-	handler := transportHTTP.NewHandler()
+	if err = database.MigrateDB(db); err != nil {
+		return err
+	}
+
+	commentService := comment.NewService(db)
+
+	handler := transportHTTP.NewHandler(commentService)
 	handler.SetupRoutes()
 
 	if err := http.ListenAndServe(":9090", handler.Router); err != nil {

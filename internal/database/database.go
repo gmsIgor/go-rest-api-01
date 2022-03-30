@@ -30,7 +30,7 @@ func NewDatabase() (*gorm.DB, error) {
 		return db, err
 	}
 
-	if err := sqlDB.Ping(); err != nil {
+	if err = sqlDB.Ping(); err != nil {
 		return db, err
 	}
 
